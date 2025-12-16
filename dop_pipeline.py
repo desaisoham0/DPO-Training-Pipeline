@@ -1,3 +1,7 @@
+from unsloth import FastLanguageModel, PatchDPOTrainer, is_bfloat16_supported
+# Apply Unsloth patches immediately
+PatchDPOTrainer()
+
 import logging
 from dataclasses import dataclass, field
 from typing import Tuple, Optional
@@ -5,7 +9,6 @@ from pathlib import Path
 
 from datasets import load_dataset, Dataset
 from trl import DPOTrainer, DPOConfig
-from unsloth import FastLanguageModel, PatchDPOTrainer, is_bfloat16_supported
 
 # Configure logging
 logging.basicConfig(
@@ -14,9 +17,6 @@ logging.basicConfig(
     datefmt="%Y-%m-%d %H:%M:%S",
 )
 logger = logging.getLogger(__name__)
-
-# Apply Unsloth patches immediately
-PatchDPOTrainer()
 
 
 @dataclass
@@ -111,7 +111,7 @@ class DPOPipeline:
         dpo_trainer = DPOTrainer(
             model=self.model,
             ref_model=None,  # Unsloth handles this efficiently (no copy needed)
-            tokenizer=self.tokenizer,
+            processing_class=self.tokenizer,
             train_dataset=dataset,
             args=DPOConfig(
                 per_device_train_batch_size=self.config.batch_size,
